@@ -1,0 +1,7 @@
+dn: ou=people,dc=gitproxy,dc=local
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=gitproxy,dc=local
+objectClass: organizationalUnit
+ou: groups

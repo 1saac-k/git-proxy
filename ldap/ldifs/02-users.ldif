@@ -1,0 +1,47 @@
+## alice - admin user (member of git-proxy-admins AND git-proxy-users)
+dn: cn=alice,ou=people,dc=gitproxy,dc=local
+objectClass: inetOrgPerson
+objectClass: msAuxUser
+objectClass: user
+cn: alice
+sn: Admin
+uid: alice
+displayName: Alice Admin
+mail: alice@gitproxy.local
+userPassword: alice123
+sAMAccountName: alice
+userPrincipalName: alice@gitproxy.local
+objectCategory: User
+title: Administrator
+
+## bob - regular user (member of git-proxy-users only)
+dn: cn=bob,ou=people,dc=gitproxy,dc=local
+objectClass: inetOrgPerson
+objectClass: msAuxUser
+objectClass: user
+cn: bob
+sn: User
+uid: bob
+displayName: Bob User
+mail: bob@gitproxy.local
+userPassword: bob123
+sAMAccountName: bob
+userPrincipalName: bob@gitproxy.local
+objectCategory: User
+title: Developer
+
+## charlie - no access (not in any git-proxy group)
+dn: cn=charlie,ou=people,dc=gitproxy,dc=local
+objectClass: inetOrgPerson
+objectClass: msAuxUser
+objectClass: user
+cn: charlie
+sn: None
+uid: charlie
+displayName: Charlie None
+mail: charlie@gitproxy.local
+userPassword: charlie123
+sAMAccountName: charlie
+userPrincipalName: charlie@gitproxy.local
+objectCategory: User
+title: Contractor
