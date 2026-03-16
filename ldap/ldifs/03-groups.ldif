@@ -4,6 +4,7 @@ objectClass: groupOfNames
 objectClass: group
 cn: git-proxy-users
 description: Users allowed to login to git-proxy
+objectCategory: CN=Group,CN=Schema,CN=Configuration,DC=gitproxy,DC=local
 member: cn=alice,ou=people,dc=gitproxy,dc=local
 member: cn=bob,ou=people,dc=gitproxy,dc=local
 
@@ -13,4 +14,5 @@ objectClass: groupOfNames
 objectClass: group
 cn: git-proxy-admins
 description: Administrators of git-proxy
+objectCategory: CN=Group,CN=Schema,CN=Configuration,DC=gitproxy,DC=local
 member: cn=alice,ou=people,dc=gitproxy,dc=local
