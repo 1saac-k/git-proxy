@@ -1,0 +1,57 @@
+# Microsoft AD compatible attributes for OpenLDAP
+# Provides sAMAccountName and userPrincipalName attributes
+
+attributetype ( 1.2.840.113556.1.4.221
+  NAME 'sAMAccountName'
+  DESC 'Microsoft sAMAccountName: Windows NT logon name'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256}
+  SINGLE-VALUE )
+
+attributetype ( 1.2.840.113556.1.4.655
+  NAME 'userPrincipalName'
+  DESC 'Microsoft userPrincipalName: UPN style login (user@domain)'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256}
+  SINGLE-VALUE )
+
+attributetype ( 1.2.840.113556.1.4.1
+  NAME 'objectCategory'
+  DESC 'Microsoft objectCategory: category of directory object'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256}
+  SINGLE-VALUE )
+
+objectclass ( 1.3.6.1.4.1.99999.1.1
+  NAME 'msAuxUser'
+  DESC 'Auxiliary objectclass for Microsoft AD compatible attributes'
+  SUP top
+  AUXILIARY
+  MAY ( sAMAccountName $ userPrincipalName $ objectCategory ) )
+
+# 'user' auxiliary class - allows (objectclass=user) filter matching
+# Used by passport-activedirectory's default search filter
+objectclass ( 1.3.6.1.4.1.99999.1.2
+  NAME 'user'
+  DESC 'Auxiliary class to enable AD-compatible objectclass=user filter matching'
+  SUP top
+  AUXILIARY )
+
+# 'group' auxiliary class - satisfies activedirectory2 isGroupResult() check
+# activedirectory2 requires objectClass=group to recognize entries as groups
+attributetype ( 1.2.840.113556.1.4.750
+  NAME 'groupType'
+  DESC 'Microsoft groupType: type and scope of a group object'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
+objectclass ( 1.3.6.1.4.1.99999.1.3
+  NAME 'group'
+  DESC 'Auxiliary class to enable AD-compatible objectclass=group filter matching'
+  SUP top
+  AUXILIARY
+  MAY ( objectCategory $ groupType ) )

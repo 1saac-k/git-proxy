@@ -1,0 +1,20 @@
+## git-proxy-users: users who can login to git-proxy UI (alice + bob)
+dn: cn=git-proxy-users,ou=groups,dc=gitproxy,dc=local
+objectClass: groupOfNames
+objectClass: group
+cn: git-proxy-users
+description: Users allowed to login to git-proxy
+objectCategory: CN=Group,CN=Schema,CN=Configuration,DC=gitproxy,DC=local
+groupType: -2147483646
+member: cn=alice,ou=people,dc=gitproxy,dc=local
+member: cn=bob,ou=people,dc=gitproxy,dc=local
+
+## git-proxy-admins: users with admin rights in git-proxy (alice only)
+dn: cn=git-proxy-admins,ou=groups,dc=gitproxy,dc=local
+objectClass: groupOfNames
+objectClass: group
+cn: git-proxy-admins
+description: Administrators of git-proxy
+objectCategory: CN=Group,CN=Schema,CN=Configuration,DC=gitproxy,DC=local
+groupType: -2147483646
+member: cn=alice,ou=people,dc=gitproxy,dc=local

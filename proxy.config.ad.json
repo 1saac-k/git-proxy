@@ -1,0 +1,94 @@
+{
+  "cookieSecret": "ad-test-cookie-secret-change-in-production",
+  "sessionMaxAgeHours": 12,
+  "rateLimit": {
+    "windowMs": 60000,
+    "limit": 1000
+  },
+  "tempPassword": {
+    "sendEmail": false,
+    "emailConfig": {}
+  },
+  "authorisedList": [
+    {
+      "project": "finos",
+      "name": "git-proxy",
+      "url": "https://github.com/finos/git-proxy.git"
+    }
+  ],
+  "sink": [
+    {
+      "type": "fs",
+      "enabled": true
+    },
+    {
+      "type": "mongo",
+      "connectionString": "mongodb://mongodb:27017/gitproxy",
+      "options": {
+        "useNewUrlParser": true,
+        "useUnifiedTopology": true,
+        "tlsAllowInvalidCertificates": false,
+        "ssl": false
+      },
+      "enabled": false
+    }
+  ],
+  "authentication": [
+    {
+      "type": "ActiveDirectory",
+      "enabled": true,
+      "adminGroup": "git-proxy-admins",
+      "userGroup": "git-proxy-users",
+      "domain": "gitproxy.local",
+      "adConfig": {
+        "url": "ldap://openldap:389",
+        "baseDN": "dc=gitproxy,dc=local",
+        "username": "cn=admin,dc=gitproxy,dc=local",
+        "password": "adminpassword"
+      }
+    }
+  ],
+  "api": {},
+  "commitConfig": {
+    "author": {
+      "email": {
+        "local": {
+          "block": ""
+        },
+        "domain": {
+          "allow": ".*"
+        }
+      }
+    },
+    "message": {
+      "block": {
+        "literals": [],
+        "patterns": []
+      }
+    },
+    "diff": {
+      "block": {
+        "literals": [],
+        "patterns": [],
+        "providers": {}
+      }
+    }
+  },
+  "attestationConfig": {
+    "questions": [
+      {
+        "label": "I am happy for this to be pushed to the upstream repository",
+        "tooltip": {
+          "text": "Are you happy for this contribution to be pushed upstream?",
+          "links": []
+        }
+      }
+    ]
+  },
+  "domains": {},
+  "privateOrganizations": [],
+  "urlShortener": "",
+  "contactEmail": "",
+  "csrfProtection": true,
+  "plugins": []
+}
