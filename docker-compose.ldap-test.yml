@@ -1,0 +1,19 @@
+services:
+  lldap:
+    image: lldap/lldap:latest
+    ports:
+      - '3890:3890'
+      - '17170:17170'
+    environment:
+      - LLDAP_LDAP_PORT=3890
+      - LLDAP_HTTP_PORT=17170
+      - LLDAP_LDAP_BASE_DN=dc=example,dc=com
+      - LLDAP_LDAP_USER_DN=admin
+      - LLDAP_LDAP_USER_PASS=admin_password
+      - LLDAP_JWT_SECRET=ldap-test-jwt-secret-key
+    healthcheck:
+      test: ['CMD-SHELL', '/app/lldap', 'healthcheck', '--url', 'http://localhost:17170']
+      interval: 3s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
