@@ -227,6 +227,28 @@ File: `src/service/passport/activeDirectory.ts`
 - Test admin group check
 - Test LDAP connection error handling
 
-### 9. Run existing tests and lint
+### 9. E2E Test with LLDAP (docker-compose)
+- LLDAP: lightweight LDAP server (https://github.com/lldap/lldap)
+- Docker image: `lldap/lldap`
+- Default ports: LDAP 3890, HTTP admin UI 17170
+- Default base DN: `dc=example,dc=com`
+- Admin user DN: `cn=admin,ou=people,dc=example,dc=com`
+- Users: `ou=people,dc=example,dc=com`
+- Groups: `ou=groups,dc=example,dc=com`
+- Key env vars:
+  - `LLDAP_LDAP_PORT=3890`
+  - `LLDAP_HTTP_PORT=17170`
+  - `LLDAP_LDAP_BASE_DN=dc=example,dc=com`
+  - `LLDAP_LDAP_USER_DN=admin`
+  - `LLDAP_LDAP_USER_PASS=<password>`
+  - `LLDAP_JWT_SECRET=<secret>`
+- Create `docker-compose.ldap-test.yml` with LLDAP service
+- Create E2E test script that:
+  1. Starts LLDAP via docker-compose
+  2. Seeds test users/groups via LLDAP HTTP API
+  3. Runs integration test against git-proxy LDAP auth
+  4. Tears down
+
+### 10. Run existing tests and lint
 - Ensure no regressions
 - Fix any lint issues
