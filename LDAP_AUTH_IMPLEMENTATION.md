@@ -7,13 +7,16 @@
 - **Signed-off-by**: `Signed-off-by: Kwangjin Ko <kwangjin.ko@sk.com>`
 - Commits should be small, atomic units for easy review
 - No Claude Code links or co-author tags
+- **Conventional Commits required** (commitlint enforced): `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`
 
 ---
 
 ## Background
 
 ### Problem
+
 git-proxy currently supports Active Directory authentication via:
+
 - `activedirectory2` - AD-specific wrapper (deprecated, AD-only)
 - `ldapjs` - underlying LDAP library (deprecated)
 - `passport-activedirectory` - Passport strategy for AD (deprecated)
@@ -21,7 +24,9 @@ git-proxy currently supports Active Directory authentication via:
 These libraries are deprecated and `activedirectory2` only supports Active Directory, not generic LDAP servers.
 
 ### Solution
+
 Add a new authentication type `ldap` using:
+
 - **ldapts** - Modern, Promise-based LDAP client (replaces ldapjs/activedirectory2)
 - **passport-custom** - Generic Passport strategy that accepts custom verify logic
 
@@ -32,12 +37,14 @@ Existing authentication methods (`local`, `ActiveDirectory`, `openidconnect`) re
 ## Library Research
 
 ### ldapts
+
 - GitHub: https://github.com/ldapts/ldapts
 - Modern, TypeScript-native LDAP client
 - Promise-based API (no callbacks)
 - Supports LDAP and LDAPS (SSL/TLS)
 - Supports STARTTLS upgrade
 - Key API:
+
   ```ts
   import { Client } from 'ldapts';
 
@@ -64,19 +71,24 @@ Existing authentication methods (`local`, `ActiveDirectory`, `openidconnect`) re
   ```
 
 ### passport-custom
+
 - GitHub: https://github.com/mbell8903/passport-custom
 - Allows creating Passport strategies with custom verification logic
 - Verify callback receives the Express `req` object directly
 - Key API:
+
   ```ts
   import { Strategy as CustomStrategy } from 'passport-custom';
 
-  passport.use('ldap', new CustomStrategy(async (req, done) => {
-    // Custom auth logic using req.body.username, req.body.password
-    // done(null, user) on success
-    // done(null, false) on failure
-    // done(error) on error
-  }));
+  passport.use(
+    'ldap',
+    new CustomStrategy(async (req, done) => {
+      // Custom auth logic using req.body.username, req.body.password
+      // done(null, user) on success
+      // done(null, false) on failure
+      // done(error) on error
+    }),
+  );
   ```
 
 ---
@@ -84,6 +96,7 @@ Existing authentication methods (`local`, `ActiveDirectory`, `openidconnect`) re
 ## Current Architecture Analysis
 
 ### Auth Strategy Registration Pattern
+
 File: `src/service/passport/index.ts`
 
 ```ts
@@ -101,11 +114,13 @@ export const authStrategies: Record<string, StrategyModule> = {
 ```
 
 Each strategy module exports:
+
 1. `type: string` - identifier (used in config and passport.use)
 2. `configure(passport)` - registers the Passport strategy, sets up serialize/deserialize
 3. `createDefaultAdmin?()` - optional default user creation
 
 ### Login Route Pattern
+
 File: `src/service/routes/auth.ts`
 
 - `appropriateLoginStrategies` array determines which strategies support username/password login
@@ -113,6 +128,7 @@ File: `src/service/routes/auth.ts`
 - POST `/api/auth/login` uses `passport.authenticate(strategyType)`
 
 ### Config Schema
+
 File: `config.schema.json`
 
 - `authenticationElement` uses `oneOf` to define different auth type configs
@@ -120,6 +136,7 @@ File: `config.schema.json`
 - Generated types in `src/config/generated/config.ts` include `AuthenticationElementType` enum
 
 ### Existing AD Auth Flow
+
 File: `src/service/passport/activeDirectory.ts`
 
 1. Service account binds to LDAP (via adConfig credentials)
@@ -156,6 +173,7 @@ File: `src/service/passport/activeDirectory.ts`
 ```
 
 ### Key Fields
+
 - `url` - LDAP server URL (ldap:// or ldaps://)
 - `bindDN` / `bindPassword` - Service account for searching
 - `searchBase` - Base DN for user search
@@ -171,6 +189,7 @@ File: `src/service/passport/activeDirectory.ts`
 - `tlsOptions` - Node.js TLS options (e.g., `rejectUnauthorized`, `ca`)
 
 ### Authentication Flow
+
 1. Create ldapts Client with `url` and `tlsOptions`
 2. Bind with service account (`bindDN` / `bindPassword`)
 3. Search for user with `searchFilter` under `searchBase`
@@ -187,24 +206,29 @@ File: `src/service/passport/activeDirectory.ts`
 ## Task List
 
 ### 1. Add dependencies
+
 - `npm install ldapts passport-custom`
 - `npm install -D @types/passport-custom` (if needed)
 
 ### 2. Update config schema (`config.schema.json`)
+
 - Add `ldap` type to `authenticationElement.oneOf`
 - Define `ldapConfig` schema with all fields
 - Add to `AuthenticationElementType` const list
 
 ### 3. Regenerate config types
+
 - Run quicktype or manual update of `src/config/generated/config.ts`
 - Add `Ldap` to `AuthenticationElementType` enum
 - Add `LdapConfig` interface
 - Add `ldapConfig` optional field to `AuthenticationElement`
 
 ### 4. Update default config (`proxy.config.json`)
+
 - Add `ldap` entry to `authentication` array (disabled by default)
 
 ### 5. Create LDAP strategy module (`src/service/passport/ldap.ts`)
+
 - Export `type = 'ldap'`
 - Export `configure(passport)` function
 - Use `ldapts.Client` for LDAP operations
@@ -213,13 +237,16 @@ File: `src/service/passport/activeDirectory.ts`
 - Set up serialize/deserialize
 
 ### 6. Register strategy in passport index (`src/service/passport/index.ts`)
+
 - Import ldap module
 - Add to `authStrategies` registry
 
 ### 7. Update auth routes (`src/service/routes/auth.ts`)
+
 - Add ldap type to `appropriateLoginStrategies` array
 
 ### 8. Write tests (`test/services/passport/testLdapAuth.test.ts`)
+
 - Test successful authentication
 - Test user not found
 - Test invalid password (bind failure)
@@ -228,6 +255,7 @@ File: `src/service/passport/activeDirectory.ts`
 - Test LDAP connection error handling
 
 ### 9. E2E Test with LLDAP (docker-compose)
+
 - LLDAP: lightweight LDAP server (https://github.com/lldap/lldap)
 - Docker image: `lldap/lldap`
 - Default ports: LDAP 3890, HTTP admin UI 17170
@@ -250,5 +278,6 @@ File: `src/service/passport/activeDirectory.ts`
   4. Tears down
 
 ### 10. Run existing tests and lint
+
 - Ensure no regressions
 - Fix any lint issues
