@@ -537,7 +537,7 @@
                 },
                 "userGroupDN": {
                   "type": "string",
-                  "description": "DN of the group a user must belong to in order to log in. If empty, all authenticated users are allowed."
+                  "description": "DN of the group a user must belong to in order to log in."
                 },
                 "adminGroupDN": {
                   "type": "string",
@@ -576,7 +576,15 @@
                   "description": "Node.js TLS options passed to the ldapts client (e.g. `rejectUnauthorized`, `ca`)."
                 }
               },
-              "required": ["url", "bindDN", "bindPassword", "searchBase", "searchFilter"]
+              "required": [
+                "url",
+                "bindDN",
+                "bindPassword",
+                "searchBase",
+                "searchFilter",
+                "userGroupDN",
+                "adminGroupDN"
+              ]
             }
           },
           "required": ["type", "enabled", "ldapConfig"]

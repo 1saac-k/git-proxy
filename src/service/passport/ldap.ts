@@ -134,23 +134,19 @@ export const configure = async (passport: PassportStatic): Promise<PassportStati
 
         const userDN = entry.dn as string;
 
-        // Step 4: Check user group membership (if configured)
-        if (ldapConfig.userGroupDN) {
-          const isMember = await isUserInGroup(client, ldapConfig, userDN, ldapConfig.userGroupDN);
-          if (!isMember) {
-            console.log(`ldap: user ${username} is not a member of ${ldapConfig.userGroupDN}`);
-            return done(null, false);
-          }
+        // Step 4: Check user group membership
+        const isMember = await isUserInGroup(client, ldapConfig, userDN, ldapConfig.userGroupDN);
+        if (!isMember) {
+          console.log(`ldap: user ${username} is not a member of ${ldapConfig.userGroupDN}`);
+          return done(null, false);
         }
 
-        // Step 5: Check admin group membership (if configured)
+        // Step 5: Check admin group membership
         let isAdmin = false;
-        if (ldapConfig.adminGroupDN) {
-          try {
-            isAdmin = await isUserInGroup(client, ldapConfig, userDN, ldapConfig.adminGroupDN);
-          } catch (error: unknown) {
-            handleErrorAndLog(error, 'Error checking admin group membership');
-          }
+        try {
+          isAdmin = await isUserInGroup(client, ldapConfig, userDN, ldapConfig.adminGroupDN);
+        } catch (error: unknown) {
+          handleErrorAndLog(error, 'Error checking admin group membership');
         }
 
         // Step 6: Unbind service account and verify user's password

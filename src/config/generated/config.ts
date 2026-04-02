@@ -266,8 +266,8 @@ export interface LdapConfig {
   bindPassword: string;
   searchBase: string;
   searchFilter: string;
-  userGroupDN?: string;
-  adminGroupDN?: string;
+  userGroupDN: string;
+  adminGroupDN: string;
   groupSearchBase?: string;
   groupSearchFilter?: string;
   usernameAttribute?: string;
@@ -879,8 +879,8 @@ const typeMap: any = {
       { json: 'bindPassword', js: 'bindPassword', typ: '' },
       { json: 'searchBase', js: 'searchBase', typ: '' },
       { json: 'searchFilter', js: 'searchFilter', typ: '' },
-      { json: 'userGroupDN', js: 'userGroupDN', typ: u(undefined, '') },
-      { json: 'adminGroupDN', js: 'adminGroupDN', typ: u(undefined, '') },
+      { json: 'userGroupDN', js: 'userGroupDN', typ: '' },
+      { json: 'adminGroupDN', js: 'adminGroupDN', typ: '' },
       { json: 'groupSearchBase', js: 'groupSearchBase', typ: u(undefined, '') },
       { json: 'groupSearchFilter', js: 'groupSearchFilter', typ: u(undefined, '') },
       { json: 'usernameAttribute', js: 'usernameAttribute', typ: u(undefined, '') },
