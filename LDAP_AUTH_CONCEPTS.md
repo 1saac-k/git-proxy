@@ -266,7 +266,67 @@ dc=example,dc=com (Base DN)
 
 ---
 
-## 8. 파일별 역할 요약
+## 8. 설계 결정: userGroupDN / adminGroupDN 필수 여부
+
+### 결론: 둘 다 required
+
+### 배경
+
+초기 구현에서는 `userGroupDN`과 `adminGroupDN`을 optional로 두었습니다.
+optional일 때의 동작은 다음과 같았습니다:
+
+- `userGroupDN` 비어있음 → LDAP 인증만 되면 누구나 로그인 허용
+- `adminGroupDN` 비어있음 → 모든 사용자가 비관리자(admin=false)로 처리
+
+### optional로 두는 것의 장점
+
+- **유연한 배포**: 소규모 팀에서 별도 그룹 관리 없이 간단하게 운영 가능
+- **local+ldap 병행**: local auth로 관리자를 만들고, ldap은 일반 사용자 인증 전용으로 사용
+
+### optional로 두는 것의 문제점
+
+**`adminGroupDN`이 없을 때의 치명적 문제:**
+
+git-proxy에서 관리자는 push 승인, 사용자 관리 등 핵심 기능을 수행합니다.
+`adminGroupDN` 없이 ldap을 단독으로 활성화하면 관리자가 0명이 되어 시스템이 사실상 작동 불능입니다.
+
+"local+ldap 동시 활성화로 해결할 수 있지 않나?"라는 의문이 있었지만,
+현재 코드(`auth.ts:getLoginStrategy()`)는 **enabled된 username/password 전략 중 첫 번째 하나만** 사용합니다:
+
+```typescript
+// auth.ts:72
+return enabledAppropriateLoginStrategies[0].type.toLowerCase();
+```
+
+즉, local과 ldap을 동시에 enabled해도 로그인 시에는 config에서 먼저 나오는 하나만 작동합니다.
+따라서 "local로 관리자를 만들고 ldap으로 일반 사용자를 인증"하는 시나리오는 현재 아키텍처에서 불가능합니다.
+
+**`userGroupDN`이 없을 때:**
+
+보안 관점에서 위험합니다. 대규모 조직의 LDAP 서버에 수천 명이 등록되어 있을 때,
+그룹 제한 없이 전원에게 git-proxy 접근을 허용하는 것은 의도치 않은 노출입니다.
+
+### 기존 AD 구현과의 일관성
+
+기존 `ActiveDirectory` 타입은 `config.schema.json`에서 `adminGroup`과 `userGroup`을 모두 required로 정의하고 있습니다:
+
+```json
+"required": ["type", "enabled", "adminGroup", "userGroup", "domain"]
+```
+
+새 `ldap` 타입도 동일한 원칙을 따르는 것이 자연스럽습니다.
+
+### 최종 스키마
+
+```json
+"required": ["url", "bindDN", "bindPassword", "searchBase", "searchFilter", "userGroupDN", "adminGroupDN"]
+```
+
+구현상으로는 group check가 조건부(`if`)가 아닌 항상 실행되도록 변경되었습니다.
+
+---
+
+## 9. 파일별 역할 요약
 
 | 파일                                          | 역할                                           |
 | --------------------------------------------- | ---------------------------------------------- |
