@@ -53,7 +53,7 @@ export const searchUser = async (
   ldapConfig: LdapConfig,
   username: string,
 ): Promise<Record<string, unknown> | null> => {
-  const filter = ldapConfig.searchFilter.replace(/\{\{username\}\}/g, username);
+  const filter = ldapConfig.searchFilter.replaceAll('{{username}}', username);
 
   const { searchEntries } = await client.search(ldapConfig.searchBase, {
     scope: 'sub',
@@ -61,6 +61,13 @@ export const searchUser = async (
   });
 
   if (searchEntries.length === 0) {
+    return null;
+  }
+
+  if (searchEntries.length > 1) {
+    console.warn(
+      `ldap: search filter matched ${searchEntries.length} entries for username "${username}", expected exactly 1`,
+    );
     return null;
   }
 
@@ -77,8 +84,8 @@ export const isUserInGroup = async (
   userDN: string,
   groupDN: string,
 ): Promise<boolean> => {
-  const groupFilter = (ldapConfig.groupSearchFilter || '(member={{dn}})').replace(
-    /\{\{dn\}\}/g,
+  const groupFilter = (ldapConfig.groupSearchFilter || '(member={{dn}})').replaceAll(
+    '{{dn}}',
     userDN,
   );
 

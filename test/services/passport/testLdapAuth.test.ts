@@ -319,6 +319,26 @@ describe('LDAP auth method', () => {
     expect(dbStub.updateUser).not.toHaveBeenCalled();
   });
 
+  it('should fail if search returns multiple entries', async () => {
+    serviceClientMock.search.mockResolvedValueOnce({
+      searchEntries: [
+        { dn: 'uid=user1,ou=people,dc=test,dc=com', uid: 'user1' },
+        { dn: 'uid=user2,ou=people,dc=test,dc=com', uid: 'user2' },
+      ],
+    });
+
+    const req = { body: { username: 'user1', password: 'pass' } };
+    const done = vi.fn();
+
+    await strategyCallback(req, done);
+
+    expect(done).toHaveBeenCalledOnce();
+    const [err, user] = done.mock.calls[0];
+    expect(err).toBeNull();
+    expect(user).toBe(false);
+    expect(dbStub.updateUser).not.toHaveBeenCalled();
+  });
+
   it('should fail when username or password is missing', async () => {
     const done = vi.fn();
 
