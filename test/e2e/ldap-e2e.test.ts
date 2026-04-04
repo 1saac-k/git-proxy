@@ -76,14 +76,7 @@ const createUser = async (userId: string, email: string, displayName: string, pa
     },
   );
 
-  // Set password via LDAP bind as admin, then modify
-  // LLDAP does not expose password setting via GraphQL, so use the REST API
-  // Actually, we need to use the LDAP protocol to set password
-  // Let's use the LLDAP HTTP API for password setting
-  // LLDAP does not have a direct REST endpoint for password, but we can use
-  // the admin password reset endpoint
-  // Note: LLDAP does not have a public API to set user passwords directly.
-  // We use the LDAP protocol to set the password via admin bind.
+  // LLDAP has no GraphQL/REST API for setting passwords, so use LDAP modify.
   const client = new Client({ url: LLDAP_LDAP });
   try {
     await client.bind(ADMIN_DN, ADMIN_PASS);
