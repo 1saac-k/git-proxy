@@ -11,9 +11,9 @@
   },
   "authorisedList": [
     {
-      "project": "finos",
+      "project": "kyet",
       "name": "git-proxy",
-      "url": "https://github.com/finos/git-proxy.git"
+      "url": "https://github.com/kyet/git-proxy.git"
     }
   ],
   "sink": [

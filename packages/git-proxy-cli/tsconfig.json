@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "lib": ["DOM", "ESNext"],
+    "lib": ["ESNext"],
     "allowJs": true,
     "checkJs": false,
-    "jsx": "react-jsx",
     "moduleResolution": "nodenext",
+    "typeRoots": ["../../node_modules/@types", "./node_modules/@types"],
     "strict": true,
     "declaration": true,
     "skipLibCheck": true,
