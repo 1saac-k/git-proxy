@@ -126,27 +126,11 @@ const getGroupId = async (groupName: string): Promise<number> => {
   return group.id;
 };
 
-describe('LDAP E2E with LLDAP', () => {
-  let ldapAvailable = false;
+const runE2E = process.env.RUN_LDAP_E2E === '1';
+const describeOrSkip = runE2E ? describe : describe.skip;
 
+describeOrSkip('LDAP E2E with LLDAP', () => {
   beforeAll(async () => {
-    // Check if LLDAP is reachable
-    try {
-      const res = await axios
-        .get(`${LLDAP_HTTP}/health`, { timeout: 3000 })
-        .catch(() => axios.get(`${LLDAP_HTTP}/`, { timeout: 3000 }));
-      ldapAvailable = res.status < 500;
-    } catch {
-      ldapAvailable = false;
-    }
-
-    if (!ldapAvailable) {
-      console.warn(
-        'LLDAP server not available. Start it with: docker compose -f docker-compose.ldap-test.yml up -d',
-      );
-      return;
-    }
-
     // Get auth token
     authToken = await getAuthToken();
 
@@ -195,8 +179,6 @@ describe('LDAP E2E with LLDAP', () => {
   });
 
   it('should bind and search with service account', async () => {
-    if (!ldapAvailable) return;
-
     const client = new Client({ url: LLDAP_LDAP });
     try {
       await client.bind(ADMIN_DN, ADMIN_PASS);
@@ -215,8 +197,6 @@ describe('LDAP E2E with LLDAP', () => {
   });
 
   it('should authenticate user with valid credentials via user bind', async () => {
-    if (!ldapAvailable) return;
-
     const client = new Client({ url: LLDAP_LDAP });
     try {
       // First search for user DN
@@ -248,8 +228,6 @@ describe('LDAP E2E with LLDAP', () => {
   });
 
   it('should reject user with invalid password', async () => {
-    if (!ldapAvailable) return;
-
     const client = new Client({ url: LLDAP_LDAP });
     try {
       await client.bind(ADMIN_DN, ADMIN_PASS);
@@ -283,8 +261,6 @@ describe('LDAP E2E with LLDAP', () => {
   });
 
   it('should verify group membership via LDAP search', async () => {
-    if (!ldapAvailable) return;
-
     const client = new Client({ url: LLDAP_LDAP });
     try {
       await client.bind(ADMIN_DN, ADMIN_PASS);
@@ -311,8 +287,6 @@ describe('LDAP E2E with LLDAP', () => {
   });
 
   it('should confirm nongroupuser is not in git-users group', async () => {
-    if (!ldapAvailable) return;
-
     const client = new Client({ url: LLDAP_LDAP });
     try {
       await client.bind(ADMIN_DN, ADMIN_PASS);
