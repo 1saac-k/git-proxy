@@ -351,3 +351,52 @@ describe('LDAP auth method', () => {
     expect(done).toHaveBeenCalledWith(null, false);
   });
 });
+
+describe('escapeFilterValue', () => {
+  let escapeFilterValue: (value: string) => string;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    // Import directly without configuring passport (no config mocks needed)
+    const mod = await import('../../../src/service/passport/ldap.js');
+    escapeFilterValue = mod.escapeFilterValue;
+  });
+
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it('should return normal strings unchanged', () => {
+    expect(escapeFilterValue('testuser')).toBe('testuser');
+    expect(escapeFilterValue('john.doe')).toBe('john.doe');
+    expect(escapeFilterValue('')).toBe('');
+  });
+
+  it('should escape LDAP injection attempts', () => {
+    // Classic injection: close filter and add wildcard match
+    const injected = escapeFilterValue('admin)(|(uid=*');
+    expect(injected).not.toContain('(');
+    expect(injected).not.toContain(')');
+    expect(injected).not.toContain('*');
+  });
+
+  it('should escape all RFC 4515 special characters', () => {
+    expect(escapeFilterValue('*')).toBe('\\2a');
+    expect(escapeFilterValue('(')).toBe('\\28');
+    expect(escapeFilterValue(')')).toBe('\\29');
+    expect(escapeFilterValue('\\')).toBe('\\5c');
+    expect(escapeFilterValue('\0')).toBe('\\00');
+    expect(escapeFilterValue('|')).toBe('\\7c');
+    expect(escapeFilterValue('&')).toBe('\\26');
+    expect(escapeFilterValue('=')).toBe('\\3d');
+    expect(escapeFilterValue('!')).toBe('\\21');
+    expect(escapeFilterValue('<')).toBe('\\3c');
+    expect(escapeFilterValue('>')).toBe('\\3e');
+    expect(escapeFilterValue('~')).toBe('\\7e');
+  });
+
+  it('should escape special characters within a string', () => {
+    expect(escapeFilterValue('user*name')).toBe('user\\2aname');
+    expect(escapeFilterValue('a(b)c')).toBe('a\\28b\\29c');
+  });
+});

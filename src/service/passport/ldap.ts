@@ -29,7 +29,7 @@ export const type = 'ldap';
 /**
  * Escape special characters in LDAP filter values per RFC 4515.
  */
-const escapeFilterValue = (value: string): string => {
+export const escapeFilterValue = (value: string): string => {
   let result = '';
   for (const ch of value) {
     const code = ch.charCodeAt(0);
