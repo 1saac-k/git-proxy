@@ -26,6 +26,22 @@ import { handleErrorAndLog } from '../../utils/errors';
 
 export const type = 'ldap';
 
+/**
+ * Escape special characters in LDAP filter values per RFC 4515.
+ */
+const escapeFilterValue = (value: string): string => {
+  let result = '';
+  for (const ch of value) {
+    const code = ch.charCodeAt(0);
+    if (code === 0 || '\\*()|&!=<>~'.includes(ch)) {
+      result += '\\' + code.toString(16).padStart(2, '0');
+    } else {
+      result += ch;
+    }
+  }
+  return result;
+};
+
 const getLdapConfig = (): LdapConfig => {
   const authMethods = getAuthMethods();
   const config = authMethods.find((method) => method.type.toLowerCase() === type);
@@ -53,7 +69,7 @@ export const searchUser = async (
   ldapConfig: LdapConfig,
   username: string,
 ): Promise<Record<string, unknown> | null> => {
-  const filter = ldapConfig.searchFilter.replaceAll('{{username}}', username);
+  const filter = ldapConfig.searchFilter.replaceAll('{{username}}', escapeFilterValue(username));
 
   const { searchEntries } = await client.search(ldapConfig.searchBase, {
     scope: 'sub',
