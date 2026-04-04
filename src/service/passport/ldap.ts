@@ -50,7 +50,23 @@ const getLdapConfig = (): LdapConfig => {
     throw new Error('LDAP authentication method not enabled or missing ldapConfig');
   }
 
-  return config.ldapConfig;
+  const lc = config.ldapConfig;
+  const requiredFields = [
+    'url',
+    'bindDN',
+    'bindPassword',
+    'searchBase',
+    'searchFilter',
+    'userGroupDN',
+    'adminGroupDN',
+  ] as const;
+  for (const field of requiredFields) {
+    if (!lc[field]) {
+      throw new Error(`LDAP configuration field "${field}" is required but empty`);
+    }
+  }
+
+  return lc;
 };
 
 const createClient = (ldapConfig: LdapConfig): Client => {
