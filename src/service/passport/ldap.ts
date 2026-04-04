@@ -110,7 +110,7 @@ export const isUserInGroup = async (
   try {
     const { searchEntries } = await client.search(searchBase, {
       scope: 'sub',
-      filter: `(&(objectClass=*)(${groupFilter.slice(1, -1)}))`,
+      filter: `(&(objectClass=*)${groupFilter})`,
     });
 
     return searchEntries.some(
