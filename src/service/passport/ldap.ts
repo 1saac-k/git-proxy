@@ -118,7 +118,7 @@ export const isUserInGroup = async (
 ): Promise<boolean> => {
   const groupFilter = (ldapConfig.groupSearchFilter || '(member={{dn}})').replaceAll(
     '{{dn}}',
-    userDN,
+    escapeFilterValue(userDN),
   );
 
   const searchBase = ldapConfig.groupSearchBase || groupDN;
