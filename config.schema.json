@@ -541,7 +541,7 @@
                 },
                 "adminGroupDN": {
                   "type": "string",
-                  "description": "DN of the admin group. Members of this group are granted admin privileges."
+                  "description": "DN of the admin group. Members of this group are granted admin privileges. Admin users must also belong to userGroupDN."
                 },
                 "groupSearchBase": {
                   "type": "string",
