@@ -27,7 +27,11 @@ import { handleErrorAndLog } from '../../utils/errors';
 export const type = 'ldap';
 
 /**
- * Escape special characters in LDAP filter values per RFC 4515.
+ * Escape special characters in LDAP filter assertion values.
+ *
+ * RFC 4515 §3 requires escaping NUL, '(', ')', '*', and '\'.
+ * We additionally escape LDAP filter operators (|, &, !, =, <, >, ~)
+ * as a defense-in-depth measure.
  */
 export const escapeFilterValue = (value: string): string => {
   let result = '';

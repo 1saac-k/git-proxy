@@ -380,7 +380,7 @@ describe('escapeFilterValue', () => {
     expect(injected).not.toContain('*');
   });
 
-  it('should escape all RFC 4515 special characters', () => {
+  it('should escape RFC 4515 and additional operator characters', () => {
     expect(escapeFilterValue('*')).toBe('\\2a');
     expect(escapeFilterValue('(')).toBe('\\28');
     expect(escapeFilterValue(')')).toBe('\\29');
