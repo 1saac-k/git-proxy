@@ -60,7 +60,7 @@
         "bindDN": "",
         "bindPassword": "",
         "searchBase": "",
-        "searchFilter": "(uid={{username}})",
+        "searchFilter": "",
         "userGroupDN": "",
         "adminGroupDN": "",
         "groupSearchBase": "",
